@@ -1,0 +1,30 @@
+body {
+  background-color: rgb(210,210,210);
+}
+
+header {
+  text-align: center;
+}
+
+#game {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  width: 770px;
+  height: 660px;
+  background: royalblue;
+  border: 1px solid black;
+}
+
+table {
+  border-collapse: separate;
+}
+
+.slot {
+  width: 90px;
+  height: 90px;
+  background: white;
+  border: 1px solid black;
+  border-radius: 50%;
+}
