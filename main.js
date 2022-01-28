@@ -70,6 +70,15 @@ const winningArrays = [
   [12, 19, 26, 33],
   [13, 20, 27, 34],
 ]
+const columnMapping = [
+  [0, 7, 14, 21, 28, 35],
+  [1, 8, 15, 22, 29, 36],
+  [2, 9, 16, 23, 30, 37],
+  [3, 10, 17, 24, 31, 38],
+  [4, 11, 18, 25, 32, 39],
+  [5, 12, 19, 26, 33, 40],
+  [6, 13, 20, 27, 34, 41]
+]
 
 // Global | Elements
 const $message = $('#message')
@@ -77,6 +86,7 @@ const $reset = $('#reset')
 const $slots = $('.slot')
 
 // Global | Variables
+let winner = null
 let turn = 'Y'
 let grid = [
   '','','','','','','',
@@ -89,94 +99,82 @@ let grid = [
 
 // EventListeners | Reset Click
 $reset.on('click', () => {
+  // Winner Related
+  winner = null
+
+  // Turn Related
   turn = 'Y'
+  $message.text('Yellow\'s Turn')
+
+  // Slot Related
   grid = [
-    ['','','','','','',''],
-    ['','','','','','',''],
-    ['','','','','','',''],
-    ['','','','','','',''],
-    ['','','','','','',''],
-    ['','','','','','','']
+    '','','','','','','',
+    '','','','','','','',
+    '','','','','','','',
+    '','','','','','','',
+    '','','','','','','',
+    '','','','','','',''
   ]
   $slots.css('background-color', 'white')
+  $slots.removeClass('yellow red')
 })
+
+const checkWinner = function () {
+  for (let i = 0; i < winningArrays.length; i ++) {
+    const grid1 = grid[winningArrays[i][0]];
+    const grid2 = grid[winningArrays[i][1]];
+    const grid3 = grid[winningArrays[i][2]];
+    const grid4 = grid[winningArrays[i][3]];
+
+    if (grid1 && grid1 === grid2 && grid1 === grid3 && grid1 === grid4) {
+      return true
+    }
+  }
+
+  return false
+};
 
 // EventListeners | Slot Click
 $slots.on('click', (e) => {
-  const $slot = $(e.target)
-  const columnIndex = $slot.attr('data-column')
+  if (winner) {
+    alert('Please Reset Game!')
+  } else {
+    const $slot = $(e.target)
+    const columnIndex = $slot.attr('data-column')
 
-  for (let rowIndex = grid.length - 1; rowIndex >= 0; rowIndex--) {
-    if (grid[rowIndex][columnIndex]) {
-      // Column is Taken
-      if (rowIndex === 0) {
+    for (let i = columnMapping[columnIndex].length - 1; i >= 0; i--) {
+      const gridIndex = columnMapping[columnIndex][i]
+
+      if (grid[gridIndex]) {
+        // Column is Taken
         // If all columns is taken, then alert
-        alert('all columns taken')
+        if (i === 0) alert('all columns taken')
+      } else {
+        // Column is available
+        // Change that slot's background color
+        // Keep the record in the grid
+        $(`.slot[data-index="${gridIndex}"]`).css('background-color', turn === 'Y' ? 'yellow' : 'red')
+        // $(`.slot[data-index="${gridIndex}"]`).addClass(turn === 'Y' ? 'yellow' : 'red')
+        grid[gridIndex] = turn;
+
+        // check if winningArrays is true
+        // something to do with turn? since it's where the record is stored?
+        // match red or yellow result with winningArrays
+        // loop winningArray
+        //   given each combination check if the corresponding grid value
+        //   is all equal and not blank
+        if (checkWinner()) {
+          winner = turn
+          $message.text(`Winner is ${turn === 'Y' ? 'Yellow' : 'Red'}`)
+          alert(`Winner is ${turn === 'Y' ? 'Yellow' : 'Red'}`)
+        } else {
+          // Change Turn if no winner
+          turn = turn === 'Y' ? 'R' : 'Y'
+          $message.text(turn === 'Y' ? 'Yellow\'s Turn' : 'Red\'s Turn')
+        }
+
+        break // If a slot is filled. Stop check other slots
       }
-      continue
-    } else {
-      // Column is available
-      // Change that slot's background color
-      $(`.slot[data-row="${rowIndex}"][data-column="${columnIndex}"]`).css('background-color', turn === 'Y' ? 'yellow' : 'red')
-      // Keep the record in the grid
-      grid[rowIndex][columnIndex] = turn
-
-      // Check if there is a winner
-
-      // Change Turn if no winner
-      turn = turn === 'Y' ? 'R' : 'Y'
-      $message.text(turn === 'Y' ? 'Yellow\'s Turn' : 'Red\'s Turn')
-      break
     }
   }
 })
-
-  // function checkBoard() {
-  //   for (let y = 0; y < winningArrays.length; y++) {
-  //     const square1 = squares[winningArrays[y][0]]
-  //     const square2 = squares[winningArrays[y][1]]
-  //     const square3 = squares[winningArrays[y][2]]
-  //     const square4 = squares[winningArrays[y][3]]
-
-  //     //check those squares to see if they all have the class of player-one
-  //     if (
-  //       square1.classList.contains('player-one') &&
-  //       square2.classList.contains('player-one') &&
-  //       square3.classList.contains('player-one') &&
-  //       square4.classList.contains('player-one')
-  //     )
-  //     {
-  //       result.innerHTML = 'Player One Wins!'
-  //     }
-  //     //check those squares to see if they all have the class of player-two
-  //     if (
-  //       square1.classList.contains('player-two') &&
-  //       square2.classList.contains('player-two') &&
-  //       square3.classList.contains('player-two') &&
-  //       square4.classList.contains('player-two')
-  //     )
-  //     {
-  //       result.innerHTML = 'Player Two Wins!'
-  //     }
-  //   }
-  // }
-
-  // for (let i = 0; i < squares.length; i++) {
-  //   squares[i].onclick = () => {
-  //     //if the square below your current square is taken, you can go ontop of it
-  //     if (squares[i + 7].classList.contains('taken') &&!squares[i].classList.contains('taken')) {
-  //       if (currentPlayer == 1) {
-  //         squares[i].classList.add('taken')
-  //         squares[i].classList.add('player-one')
-  //         currentPlayer = 2
-  //         displayCurrentPlayer.innerHTML = currentPlayer
-  //       } else if (currentPlayer == 2){
-  //         squares[i].classList.add('taken')
-  //         squares[i].classList.add('player-two')
-  //         currentPlayer = 1
-  //         displayCurrentPlayer.innerHTML = currentPlayer
-  //       }
-  //     } else alert('cant go here')
-  //     checkBoard()
-  //   }
-  // }
